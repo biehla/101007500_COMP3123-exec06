@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
-    "start": "bun run --watch server.js1"
+    "dev": "bun run --watch server.js",
+    "start": "bun run server.js"
   },
   "keywords": [
     "expressJS",
