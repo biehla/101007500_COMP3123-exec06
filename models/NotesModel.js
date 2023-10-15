@@ -1,5 +1,6 @@
-import mongoose from 'mongose'
+const mongoose = require('mongoose')
 const { Schema } = mongoose
+export {Note}
 
 const noteSchema = new Schema({
   
@@ -12,3 +13,4 @@ const noteSchema = new Schema({
 })
 
 const Note = mongoose.model('Note', noteSchema)
+

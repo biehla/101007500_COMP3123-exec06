@@ -1,90 +1,96 @@
-const noteModel = require('../models/Notes.js');
+const express = require('express');
+// import { Router } from "express";
+const Notes = require('../models/NotesModel')
+var router = express.Router()
+export {router};
 
-//TODO - Create a new Note
 //http://mongoosejs.com/docs/api.html#document_Document-save
-app.post('/notes', (req, res) => {
+router.post('/notes', async (req, res) => {
 
   // Validate request
   if(!req.body.content) {
       return res.status(400).send({
           message: "Note content can not be empty"
       });
-  } 
-  else {
+  }
+
+  if (req.body.noteTitle &&
+      req.body.noteDescription &&
+      req.body.priority ) {
     try {
-      const kitty = new noteModel.Kitten({
-        noteTitle: req.body.noteTitle.toString(),
-        noteDescription: req.body.noteDescription.toString(),
-        priority: [req.body.priority.toString()],
-        dateAdded: Date.now(),
-        dateUpdated: 0
-      })
-      kitty.save().then(() => {
-        res.status(201).send()
-      })
+        let note = await Notes.Note.create({
+            noteTitle: req.body.noteTitle,
+            noteDescription: req.body.noteDescription,
+            priority: req.body.priority,
+            dateAdded: Date.now(),
+        });
+
+        res.status(200).send()
     }
     catch (e) {
-      return res.status(400).send({
-        message: "Invalid note contents recieved`"
-      })
+        res.status(500).send('pp smol')
     }
+
   }
 
 });
 
 
-//TODO - Retrieve all Notes
 //http://mongoosejs.com/docs/api.html#find_find
-app.get('/notes', (req, res) => {
-    // Validate request
-    if(!req.body.content) {
-        return res.status(400).send({
-            message: "Note content can not be empty"
-        });
+router.get('/notes', async (req, res) => {
+    try {
+        const notes = await Notes.Note.find({});
+        res.status(200).send(notes);
     }
-
-    //TODO - Write your code here to returns all note
+    catch (e) {
+        res.status(500).send(e);
+    }
 });
 
 
-//TODO - Retrieve a single Note with noteId
 //http://mongoosejs.com/docs/api.html#findbyid_findById
-app.get('/notes/:noteId', (req, res) => {
-    // Validate request
-    if(!req.body.content) {
-        return res.status(400).send({
-            message: "Note content can not be empty"
-        });
+router.get('/notes/:noteId', async (req, res) => {
+    try {
+        const note = await Notes.Note.findById(req.params.noteId).exec()
+        res.status(200).send(note)
     }
-
-    //TODO - Write your code here to return onlt one note using noteid
+    catch (e) {
+        res.status(500).send(e)
+    }
 });
 
 
-//TODO - Update a Note with noteId
 //http://mongoosejs.com/docs/api.html#findbyidandupdate_findByIdAndUpdate
-app.put('/notes/:noteId', (req, res) => {
-    // Validate request
-    if(!req.body.content) {
+router.put('/notes/:noteId', async (req, res) => {
+    if(!req.body) {
         return res.status(400).send({
             message: "Note content can not be empty"
         });
+    } else if (!(req.body.noteTitle &&
+               req.body.noteDescription &&
+               req.body.priority)) {
+        return res.status(400).send({
+            message: "Please include object values"
+        });
     }
 
-    //TODO - Write your code here to update the note using noteid
+    try {
+        const note = await Notes.Note.findByIdAndUpdate(req.params.noteId, req.body).exec()
+        res.status(200).send()
+    }
+    catch (e) {
+        res.status(500).send(e)
+    }
 });
 
 
-//TODO - Delete a Note with noteId
 //http://mongoosejs.com/docs/api.html#findbyidandremove_findByIdAndRemove
-app.delete('/notes/:noteId', (req, res) => {
-    // Validate request
-    if(!req.body.content) {
-        return res.status(400).send({
-            message: "Note content can not be empty"
-        });
+router.delete('/notes/:noteId', async (req, res) => {
+    try {
+        const note = await Notes.Note.findByIdAndDelete(req.params.noteId).exec()
+        res.status(200).send()
     }
-
-    //TODO - Write your code here to delete the note using noteid
-
+    catch (e) {
+        res.status(500).send(e)
+    }
 });
